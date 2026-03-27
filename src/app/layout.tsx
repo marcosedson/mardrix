@@ -1,24 +1,12 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
-import { Providers } from "./providers";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { Outfit } from 'next/font/google';
+import './globals.css';
+import "flatpickr/dist/flatpickr.css";
+import { SidebarProvider } from '@/context/SidebarContext';
+import { ThemeProvider } from '@/context/ThemeContext';
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const outfit = Outfit({
   subsets: ["latin"],
 });
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-export const metadata: Metadata = {
-  title: "Mardrix | ERP para Empresas de Itumbiara, GO",
-  description:
-    "Mardrix é um ERP online para pequenas empresas com UX superior: estoque, vendas, compras, financeiro e etiquetas.",
-};
 
 export default function RootLayout({
   children,
@@ -26,15 +14,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="pt-BR"
-      suppressHydrationWarning
-      className={`dark ${geistSans.variable} ${geistMono.variable}`}
-    >
-      <body>
-        <Providers>
-          <TooltipProvider>{children}</TooltipProvider>
-        </Providers>
+    <html lang="en">
+      <body className={`${outfit.className} dark:bg-gray-900`}>
+        <ThemeProvider>
+          <SidebarProvider>{children}</SidebarProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

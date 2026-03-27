@@ -43,7 +43,7 @@ export default function EtiquetasLotePage() {
   const catalogoQuery = useEtiquetasCatalogo();
   const categorias = catalogoQuery.data?.categorias ?? [];
   const fornecedores = catalogoQuery.data?.fornecedores ?? [];
-  const produtos = catalogoQuery.data?.produtos ?? [];
+  const produtos = useMemo(() => catalogoQuery.data?.produtos ?? [], [catalogoQuery.data]);
 
   const [startAt, setStartAt] = useState(1);
 

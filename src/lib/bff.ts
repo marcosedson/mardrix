@@ -78,3 +78,14 @@ export async function tryProxyToApi(
     clearTimeout(t);
   }
 }
+
+export function jsonMock(body: unknown, init?: { status?: number; headers?: HeadersInit }) {
+  const res = NextResponse.json(body, { status: init?.status ?? 200 });
+  res.headers.set("x-mardrix-source", "mock");
+  if (init?.headers) {
+    for (const [k, v] of Object.entries(init.headers)) {
+      res.headers.set(k, String(v));
+    }
+  }
+  return res;
+}
