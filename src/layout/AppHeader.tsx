@@ -3,6 +3,7 @@ import { ThemeToggleButton } from "@/components/common/ThemeToggleButton";
 import NotificationDropdown from "@/components/header/NotificationDropdown";
 import UserDropdown from "@/components/header/UserDropdown";
 import { useSidebar } from "@/context/SidebarContext";
+import { useTenant } from "@/context/TenantContext";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useState ,useEffect,useRef} from "react";
@@ -11,6 +12,16 @@ const AppHeader: React.FC = () => {
   const [isApplicationMenuOpen, setApplicationMenuOpen] = useState(false);
 
   const { isMobileOpen, toggleSidebar, toggleMobileSidebar } = useSidebar();
+  const { companies, companyId, branchId, setCompanyId, setBranchId } = useTenant();
+  const selectedCompany = companies.find((company) => company.id === companyId) ?? companies[0];
+
+  const syncTenant = async (nextCompanyId: string, nextBranchId: string) => {
+    await fetch("/api/tenant", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ companyId: nextCompanyId, branchId: nextBranchId }),
+    });
+  };
 
   const handleToggle = () => {
     if (window.innerWidth >= 1024) {
@@ -23,7 +34,7 @@ const AppHeader: React.FC = () => {
   const toggleApplicationMenu = () => {
     setApplicationMenuOpen(!isApplicationMenuOpen);
   };
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -160,6 +171,43 @@ const AppHeader: React.FC = () => {
             isApplicationMenuOpen ? "flex" : "hidden"
           } items-center justify-between w-full gap-4 px-5 py-4 lg:flex shadow-theme-md lg:justify-end lg:px-0 lg:shadow-none`}
         >
+          <div className="hidden items-center gap-2 xl:flex">
+            <select
+              className="h-10 rounded-lg border border-gray-300 bg-transparent px-3 text-sm dark:border-gray-700 dark:bg-gray-900"
+              value={companyId}
+              onChange={(event) => {
+                const nextCompanyId = event.target.value;
+                const company = companies.find((item) => item.id === nextCompanyId);
+                setCompanyId(nextCompanyId);
+                if (company?.branches?.[0]) {
+                  setBranchId(company.branches[0].id);
+                  void syncTenant(nextCompanyId, company.branches[0].id);
+                }
+              }}
+            >
+              {companies.map((company) => (
+                <option key={company.id} value={company.id}>
+                  {company.name}
+                </option>
+              ))}
+            </select>
+
+            <select
+              className="h-10 rounded-lg border border-gray-300 bg-transparent px-3 text-sm dark:border-gray-700 dark:bg-gray-900"
+              value={branchId}
+              onChange={(event) => {
+                const nextBranchId = event.target.value;
+                setBranchId(nextBranchId);
+                void syncTenant(companyId, nextBranchId);
+              }}
+            >
+              {selectedCompany.branches.map((branch) => (
+                <option key={branch.id} value={branch.id}>
+                  {branch.name}
+                </option>
+              ))}
+            </select>
+          </div>
           <div className="flex items-center gap-2 2xsm:gap-3">
             {/* <!-- Dark Mode Toggler --> */}
             <ThemeToggleButton />

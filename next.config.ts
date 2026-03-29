@@ -1,10 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  reactCompiler: true,
-  // Turbopack está falhando ao resolver subpaths do Firebase (firebase/app, firebase/auth).
-  // Para estabilizar a build e permitir Auth funcionar, desativamos a config explícita do Turbopack.
-
+  /* config options here */
   webpack(config) {
     config.module.rules.push({
       test: /\.svg$/,
@@ -12,15 +9,16 @@ const nextConfig: NextConfig = {
     });
     return config;
   },
-
-  turbopack: {
-    rules: {
-      '*.svg': {
-        loaders: ['@svgr/webpack'],
-        as: '*.js',
+    
+    turbopack: {
+      rules: {
+        '*.svg': {
+          loaders: ['@svgr/webpack'],
+          as: '*.js',
+        },
       },
     },
-  },
+  
 };
 
 export default nextConfig;
